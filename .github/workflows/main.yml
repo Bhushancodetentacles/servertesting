@@ -1,20 +1,25 @@
-name: Check Server Accessibility
+name: Deploy
 
-on: [push, pull_request]
+on:
+  push:
+    branches:
+      - main
 
 jobs:
-  check_server:
+
+  deploy-main-server:
+    if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
+    timeout-minutes: 10
 
     steps:
-    - name: Check Server Accessibility
-      run: |
-        SERVER_URL="http://43.231.127.237/"
-        STATUS_CODE=$(curl -s -o /dev/null -w "%{http_code}" $SERVER_URL)
-
-        if [ $STATUS_CODE -eq 200 ]; then
-          echo "Server is accessible."
-        else
-          echo "Server is not accessible. HTTP Status Code: $STATUS_CODE"
-          exit 1
-        fi
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Deploy to main server
+        uses: cross-the-world/ssh-scp-ssh-pipelines@v1.1.4
+        with:
+          pass: ${{ secrets.PASSWORD }}
+          user: ${{ secrets.USERNAME }}
+          host: ${{ secrets.HOSTNAME }}
+          scp: |
+            'hello' => /var/www/html
