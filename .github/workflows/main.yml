@@ -1,0 +1,20 @@
+name: Check Server Accessibility
+
+on: [push, pull_request]
+
+jobs:
+  check_server:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Check Server Accessibility
+      run: |
+        SERVER_URL="http://43.231.127.237/"
+        STATUS_CODE=$(curl -s -o /dev/null -w "%{http_code}" $SERVER_URL)
+
+        if [ $STATUS_CODE -eq 200 ]; then
+          echo "Server is accessible."
+        else
+          echo "Server is not accessible. HTTP Status Code: $STATUS_CODE"
+          exit 1
+        fi
